@@ -1,0 +1,18 @@
+@import models.UserProfileForm
+@(userProfileForm: Form[UserProfileForm])(implicit messages: MessagesProvider,request:RequestHeader)
+
+
+@import helper._
+@main("View Profile") {
+@helper.form(action = routes.ProfileController.updateProfile) {
+@CSRF.formField
+@helper.inputText(userProfileForm("fname"))
+@helper.inputText(userProfileForm("mname"))
+@helper.inputText(userProfileForm("lname"))
+@helper.inputText(userProfileForm("mobile"))
+@helper.inputText(userProfileForm("age"))
+@helper.inputText(userProfileForm("hobbies"))
+<button type="Submit" value="UpdateProfile">Update Profile
+</button>
+}
+}

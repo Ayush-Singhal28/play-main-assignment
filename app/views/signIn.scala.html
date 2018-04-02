@@ -1,0 +1,23 @@
+@import models.UserSignIn
+@(userSignInForm: Form[UserSignIn])(implicit messages: MessagesProvider,request:RequestHeader, flash: Flash)
+
+@flash.get("failed").getOrElse("New User")
+
+@import helper._
+@helper.form(action = routes.ProfileController.viewProfile()) {
+@CSRF.formField
+
+@helper.inputText(userSignInForm("email"))
+@helper.inputPassword(userSignInForm("password"))
+
+<button type="Submit" value="SignIn">SignIn
+</button>
+}
+@main("Welcome to Play") {
+
+<form action= "@routes.ProfileController.forgotPassword">
+    <button type="Submit" value="ForgotPassword">Forgot Password
+    </button>
+</form>
+}
+

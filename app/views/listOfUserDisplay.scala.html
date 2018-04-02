@@ -1,0 +1,13 @@
+@import models.UserData
+@(list: List[UserData])(implicit messages: MessagesProvider,request:RequestHeader)
+
+@import helper._
+@main("View List Of User") {
+@CSRF.formField
+
+@for(userList <- list){
+<p>fname: @userList.fname</p>
+<p>mname: @userList.mname</p>
+<p>email: @userList.email</p>
+}
+}

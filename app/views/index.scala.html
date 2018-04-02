@@ -1,0 +1,17 @@
+@()(implicit messages: MessagesProvider,request:RequestHeader)
+
+@import helper._
+@main("Welcome to Play") {
+@CSRF.formField
+<form action= "@routes.HomeController.signUp()">
+<button type="Submit" value="SignUp" >SignUp
+</button> </form>
+<form action= "@routes.ProfileController.signIn()">
+<button type="Submit" value="SignIn">SignIn
+</button>
+</form>
+<form action= "@routes.AdminController.admin()">
+    <button type="Submit" value="Admin">Admin
+    </button>
+</form>
+}

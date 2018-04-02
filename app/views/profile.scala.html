@@ -1,0 +1,27 @@
+@()(implicit messages: MessagesProvider,request:RequestHeader, flash: Flash)
+
+@import helper._
+<p>@request.session.get("email")</p>
+@flash.get("success").getOrElse("Error")
+
+@main("Welcome to Play") {
+<nav class="navbar navbar-inverse">
+    <ul class="nav navbar-nav">
+       <li> <form action="@routes.ProfileController.getUserInformation()">
+            <button>view Profile</button>
+        </form>
+       </li>
+        <li>
+        <form action="@routes.AssignmentController.listOfAssignment()">
+            <button>view assignment</button>
+        </form></li>
+    </ul>
+    <form action="@routes.HomeController.index()">
+        <button>Logout</button>
+    </form>
+</nav>
+
+
+
+}
+

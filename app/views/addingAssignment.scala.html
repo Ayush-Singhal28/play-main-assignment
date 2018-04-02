@@ -1,0 +1,14 @@
+@import models.AssignmentData
+@(assignmentData: Form[AssignmentData])(implicit request: RequestHeader, messages: MessagesProvider, flash: Flash)
+
+@import helper._
+@main("Adding Assignment") {
+@helper.form(action = routes.AssignmentController.storeAssignment) {
+@flash.get("success")
+@CSRF.formField
+@helper.inputText(assignmentData("title"))
+@helper.inputText(assignmentData("description"))
+<button type="submit" value="AddAssignment ">Add Assignment</button>
+
+}
+}

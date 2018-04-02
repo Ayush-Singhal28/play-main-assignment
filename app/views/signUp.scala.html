@@ -1,0 +1,22 @@
+@import models.UserInfo
+@(userForm: Form[UserInfo])(implicit messages: MessagesProvider,request:RequestHeader)
+
+@import helper._
+@main("Welcome to Play") {
+@helper.form(action = routes.HomeController.validateAndStoreInDb()) {
+@CSRF.formField
+@helper.inputText(userForm("fname"))
+@helper.inputText(userForm("mname"))
+@helper.inputText(userForm("lname"))
+@helper.inputText(userForm("email"))
+@helper.inputPassword(userForm("password"))
+@helper.inputPassword(userForm("confirmPassword"))
+@helper.inputText(userForm("mobile"))
+@helper.inputRadioGroup(userForm("gender"),options = options("M"->"Male","F"->"Female"))
+@helper.inputText(userForm("age"))
+@helper.inputText(userForm("hobbies"))
+<button formmethod="post" type="Submit" value="SignUp">SignUp
+</button>
+}
+}
+

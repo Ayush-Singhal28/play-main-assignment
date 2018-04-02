@@ -1,0 +1,13 @@
+@import models.AssignmentData
+@(list: List[AssignmentData])(implicit messages: MessagesProvider,request:RequestHeader)
+
+@import helper._
+@main("View Assignment") {
+@CSRF.formField
+
+@for(assignmentList <- list){
+<p>Id : @assignmentList.id</p>
+<p>Title: @assignmentList.title</p>
+<p>Description: @assignmentList.description</p>}
+
+}

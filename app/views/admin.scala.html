@@ -1,0 +1,28 @@
+
+@()(implicit messages: MessagesProvider,request:RequestHeader)
+
+@import helper._
+@main("Admin Page") {
+@CSRF.formField
+<div class="container">
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Admin</a>
+            </div>
+            <ul class="nav navbar-nav">
+
+                <li><form action="@routes.AssignmentController.addingAssignment"><button>Add Assignment</button></form></li>
+
+                <li><form action="@routes.AssignmentController.listOfAssignment"><button>View List of Assignment</button></form></li>
+
+                <li><form action="@routes.AdminController.viewListOfUser"><button>View List Of User</button></form></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+
+                <li><a href="@routes.HomeController.index()"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+</div>
+}
