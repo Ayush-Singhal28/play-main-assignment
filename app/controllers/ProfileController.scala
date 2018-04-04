@@ -12,26 +12,26 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-
-
-class ProfileController @Inject()(userProfileRepository: UserProfileRepository,cc: ControllerComponents) extends AbstractController(cc) with I18nSupport  {
+class ProfileController @Inject()(userProfileRepository: UserProfileRepository, cc: ControllerComponents)
+  extends AbstractController(cc) with I18nSupport {
   implicit val message = cc.messagesApi
 
 
   val userChangingPasswordForm: Form[UserChangingPassword] = Form(
     mapping(
-      "email" -> text ,
+      "email" -> text,
       "password" -> text,
       "confirmPassword" -> text,
 
     )
 
-    (UserChangingPassword.apply)(UserChangingPassword.unapply).verifying("Reconfirm Password",UserInfo => UserInfo.password == UserInfo.confirmPassword)
+    (UserChangingPassword.apply)(UserChangingPassword.unapply)
+      .verifying("Reconfirm Password", UserInfo => UserInfo.password == UserInfo.confirmPassword)
   )
 
   val userSignInForm: Form[UserSignIn] = Form(
     mapping(
-      "email" -> text ,
+      "email" -> text,
       "password" -> text,
     )
 
@@ -51,14 +51,24 @@ class ProfileController @Inject()(userProfileRepository: UserProfileRepository,c
     (UserProfileForm.apply)(UserProfileForm.unapply)
   )
 
+  /**
+    * Redirect to signIn page
+    */
   def signIn(): Action[AnyContent] = Action { implicit request: Request[AnyContent] =>
     Ok(views.html.signIn(userSignInForm))
   }
 
+  /**
+    * Redirect to profile page.
+    */
   def dataDisplay(): Action[AnyContent] = Action { implicit request: Request[AnyContent] =>
     Ok(views.html.profile())
   }
 
+  /**
+    * User sign in and redirect
+    * to profile page
+    */
   def viewProfile(): Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
 
     userSignInForm.bindFromRequest.fold(
@@ -66,27 +76,29 @@ class ProfileController @Inject()(userProfileRepository: UserProfileRepository,c
         Future.successful(BadRequest(views.html.signIn(formWithErrors)))
       },
       userData => {
-        userProfileRepository.doSignIn(userData.email, userData.password).flatMap{
+        userProfileRepository.doSignIn(userData.email, userData.password).flatMap {
           case true => userProfileRepository.haveAuthToSignIn(userData.email).map {
-            case true =>  Redirect(routes.ProfileController.dataDisplay()).withSession("email" -> userData.email).flashing("success" -> "user successfully sign in")
+            case true => Redirect(routes.ProfileController.dataDisplay()).withSession("email" -> userData.email).flashing("success" -> "user successfully sign in")
             case false => Redirect(routes.ProfileController.signIn()).flashing("failed" -> "take permission from admin")
           }
-          case false => Future.successful(Redirect(routes.ProfileController.signIn()).flashing("incorrect" ->"check email and password"))
-        }})
+          case false => Future.successful(Redirect(routes.ProfileController.signIn()).flashing("incorrect" -> "check email and password"))
+        }
+      })
   }
 
 
-  /*def updateProfile() = Action { implicit request: Request[AnyContent] =>
-
-    Ok(views.html.profile())
-  }*/
-
+  /**
+    * Redirect to forgot password page.
+    * If user forgot his password.
+    */
   def forgotPassword(): Action[AnyContent] = Action { implicit request: Request[AnyContent] =>
 
     Ok(views.html.forgotPassword(userSignInForm))
   }
 
-
+  /**
+    * Store the updated password.
+    */
   def storeUpdatedPassword(): Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
 
     userSignInForm.bindFromRequest.fold(
@@ -94,19 +106,18 @@ class ProfileController @Inject()(userProfileRepository: UserProfileRepository,c
         Future.successful(BadRequest(views.html.forgotPassword(formWithErrors)))
       },
       userData => {
-        val newUser = UserSignIn(
-          userData.email,
-          userData.password
 
-        )
-        userProfileRepository.updatePassword(newUser.email,newUser.password).map {
-          case true => Redirect(routes.ProfileController.viewProfile).withSession("email" -> newUser.email)
+        userProfileRepository.updatePassword(userData.email, userData.password).map {
+          case true => Redirect(routes.HomeController.index()).withSession("email" -> userData.email)
             .flashing("success" -> "password updated successfully")
           case false => Ok(views.html.forgotPassword(userSignInForm))
         }
       })
   }
 
+  /**
+    * User get profile information
+    */
   def getUserInformation(): Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
 
     val email = request.session.get("email").get
@@ -119,6 +130,10 @@ class ProfileController @Inject()(userProfileRepository: UserProfileRepository,c
     }
   }
 
+  /**
+    * User get profile information
+    * and update Profile Form.
+    */
   def updateProfile(): Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
     userProfileForm.bindFromRequest.fold(
       formWithErrors => {
@@ -126,7 +141,7 @@ class ProfileController @Inject()(userProfileRepository: UserProfileRepository,c
       },
       profile => {
         val updatedDetails = UserProfileForm(profile.fname, profile.mname, profile.lname,
-          profile.mobile,profile.age, profile.hobbies)
+          profile.mobile, profile.age, profile.hobbies)
         val userUpdated = userProfileRepository.updateDetails(request.session.get("email").get, updatedDetails)
         userUpdated.map {
           case true =>
@@ -137,4 +152,4 @@ class ProfileController @Inject()(userProfileRepository: UserProfileRepository,c
   }
 
 
-  }
+}

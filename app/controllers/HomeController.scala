@@ -35,7 +35,9 @@ class HomeController @Inject()(userProfileRepository: UserProfileRepository,
       "confirmPassword" -> text,
       "mobile" -> text.verifying("Must contain 10 digit number", mobile => mobile.length() == 10),
       "gender" -> text,
+      //scalastyle:off
       "age" -> number(min = 18, max = 75),
+      //scalastyle:on
       "hobbies" -> text
     )
 
@@ -43,16 +45,26 @@ class HomeController @Inject()(userProfileRepository: UserProfileRepository,
       .verifying("Please Reconfirm Password", UserInfo => UserInfo.password == UserInfo.confirmPassword)
   )
 
-
+  /**
+    * Redirect to index page.
+    * This is welcome Page
+    */
   def index(): Action[AnyContent] = Action { implicit request: Request[AnyContent] =>
     Ok(views.html.index())
   }
 
+  /**
+    * Redirect to signUp page.
+    * User able to fill signUp form
+    */
   def signUp(): Action[AnyContent] = Action { implicit request: Request[AnyContent] =>
     Ok(views.html.signUp(userForm))
   }
 
-
+  /**
+    * Validate user form field
+    * and then store in database
+    */
   def validateAndStoreInDb(): Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
 
     userForm.bindFromRequest.fold(
@@ -80,7 +92,8 @@ class HomeController @Inject()(userProfileRepository: UserProfileRepository,
 
           case false => userProfileRepository.store(newUser).flatMap {
             case true =>
-              Future.successful(Redirect(routes.ProfileController.viewProfile).withSession("email" -> newUser.email)
+              Future.successful(Redirect(routes.ProfileController.viewProfile)
+                .withSession("email" -> newUser.email)
                 .flashing("success" -> "user data stored successfully"))
             case false => Future.successful(Ok(views.html.signUp(userForm)))
           }

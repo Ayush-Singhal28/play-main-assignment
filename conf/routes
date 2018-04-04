@@ -14,7 +14,7 @@ POST    /validate                        controllers.HomeController.validateAndS
 GET     /viewProfile                   controllers.ProfileController.viewProfile
 GET     /forgotPassword                   controllers.ProfileController.forgotPassword
 POST    /storeUpdatedPassword           controllers.ProfileController.storeUpdatedPassword
-#POST  /storeAssignment                 controllers.AssignmentController.storeAssignment
+POST  /storeAssignment                 controllers.AssignmentController.storeAssignment
 GET   /getUserInformation              controllers.ProfileController.getUserInformation
 GET   /dataDisplay                     controllers.ProfileController.dataDisplay
 GET   /updateProfile                     controllers.ProfileController.updateProfile

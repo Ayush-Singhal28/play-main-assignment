@@ -19,10 +19,12 @@ trait userAssignmentTable extends HasDatabaseConfigProvider[JdbcProfile] {
 
   class AssignmentTable(tag: Tag) extends Table[AssignmentData](tag, "AssignmentData") {
 
+    //scalastyle:off
     def * : ProvenShape[AssignmentData] = (id,
       title,
       description
     ) <> (AssignmentData.tupled, AssignmentData.unapply)
+    //scalastyle:on
 
     def id: Rep[Int] = column[Int]("id", O.PrimaryKey, O.AutoInc)
 
@@ -39,6 +41,8 @@ trait UserAssignmentTrait {
 
   def viewAssignment(): Future[List[AssignmentData]]
 
+  def deleteAssignment(id: Int): Future[Boolean]
+
 }
 
 trait UserAssignmentImpl extends UserAssignmentTrait {
@@ -46,14 +50,26 @@ trait UserAssignmentImpl extends UserAssignmentTrait {
 
   import profile.api._
 
+  /**
+    * Used to store assignment in database
+    */
   def storingAssignment(assignment: AssignmentData): Future[Boolean] = {
     db.run(assignmentQuery += assignment) map (_ > 0)
   }
 
+  /**
+    * Used to get Assignment Data from database.
+    */
   def viewAssignment(): Future[List[AssignmentData]] = {
     db.run(assignmentQuery.to[List].result)
   }
 
+  /**
+    * Used to delete Assignment Data from database.
+    */
+   def deleteAssignment(id: Int): Future[Boolean] = {
+     db.run(assignmentQuery.filter(_.id === id).delete) map (_ > 0)
+   }
 }
 
 class AssignmentRepository @Inject()
@@ -61,3 +77,4 @@ class AssignmentRepository @Inject()
   protected val dbConfigProvider: DatabaseConfigProvider
 )
   extends UserAssignmentTrait with userAssignmentTable with UserAssignmentImpl
+

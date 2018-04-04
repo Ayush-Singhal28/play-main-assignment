@@ -19,6 +19,7 @@ trait userRepositoryTable extends HasDatabaseConfigProvider[JdbcProfile] {
 
   class UserTable(tag: Tag) extends Table[UserData](tag, "UserData") {
 
+    //scalastyle:off
     def * : ProvenShape[UserData] = (id,
       fname,
       mname,
@@ -31,6 +32,7 @@ trait userRepositoryTable extends HasDatabaseConfigProvider[JdbcProfile] {
       hobbies,
       haveAuthToLogin,
       isNormalUser) <> (UserData.tupled, UserData.unapply)
+    //scalastyle:on
 
     def id: Rep[Int] = column[Int]("id", O.PrimaryKey, O.AutoInc)
 
@@ -83,15 +85,25 @@ trait UserRepositoryImpl extends UserRepositoryTrait {
 
   import profile.api._
 
+  /**
+    * Used to store Form Data to database.
+    */
   def store(user: UserData): Future[Boolean] = {
     db.run(userQuery += user) map (_ > 0)
   }
 
+  /**
+    * Used to check whether user exist or not.
+    * If not, store Form Data to database.
+    */
   def isUserExist(email: String): Future[Boolean] = {
     val queryResult = userQuery.filter(_.email.toLowerCase === email.toLowerCase).to[List].result
     db.run(queryResult) map (_.nonEmpty)
   }
 
+  /**
+    * Used to sign in.
+    */
   def doSignIn(email: String, password: String): Future[Boolean] = {
     val queryResult = userQuery.filter(user =>
       user.email.toLowerCase === email.toLowerCase && user.password === password)
@@ -99,23 +111,35 @@ trait UserRepositoryImpl extends UserRepositoryTrait {
     db.run(queryResult) map (_.nonEmpty)
   }
 
+  /**
+    * Check admin enable user to sign In.
+    */
   def haveAuthToSignIn(email: String): Future[Boolean] = {
     val queryResult = userQuery.filter(user => user.email.toLowerCase === email.toLowerCase && user.haveAuthToLogin)
       .to[List].result
     db.run(queryResult) map (_.nonEmpty)
   }
 
+  /**
+    * Update password and reflect in database.
+    */
   def updatePassword(email: String, password: String): Future[Boolean] = {
     val queryResult = userQuery.filter(user => user.email.toLowerCase === email.toLowerCase).map(_.password)
       .update(password)
     db.run(queryResult) map (_ > 0)
   }
 
+  /**
+    * Used to get  user information from database.
+    */
   def getInformation(email: String): Future[UserData] = {
     val queryResult = userQuery.filter(user => user.email.toLowerCase === email.toLowerCase).result.head
     db.run(queryResult)
   }
 
+  /**
+    * Used to update Form Data to database.
+    */
   def updateDetails(email: String, changeField: UserProfileForm): Future[Boolean] = {
     val queryResult = userQuery.filter(_.email.toLowerCase === email.toLowerCase)
       .map(user => (user.fname, user.mname, user.lname, user.mobile, user.age, user.hobbies))
@@ -128,6 +152,9 @@ trait UserRepositoryImpl extends UserRepositoryTrait {
     db.run(queryResult) map (_ > 0)
   }
 
+  /**
+    * Used to get list of user from database.
+    */
   def listOfUser(): Future[List[UserData]] = {
     db.run(userQuery.to[List].result)
   }

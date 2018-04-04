@@ -23,10 +23,16 @@ class AssignmentController @Inject()(assignmentRepository: AssignmentRepository,
     )(AssignmentData.apply)(AssignmentData.unapply)
   )
 
+  /**
+    * Redirect to addingAssignment page
+    */
   def addingAssignment(): Action[AnyContent] = Action { implicit request: Request[AnyContent] =>
     Ok(views.html.addingAssignment(assignmentData))
   }
 
+  /**
+    * store assignment in database
+    */
   def storeAssignment(): Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
 
     assignmentData.bindFromRequest.fold(
@@ -44,8 +50,23 @@ class AssignmentController @Inject()(assignmentRepository: AssignmentRepository,
       })
   }
 
+  /**
+    * Redirect to assignment page
+    * and display list of assignment
+    */
   def listOfAssignment(): Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
     val list = Await.result(assignmentRepository.viewAssignment(), Duration.Inf)
     Future.successful(Ok(views.html.assignment(list)))
   }
+
+  /**
+    * admin delete assignment by id
+    */
+  def deleteAssignmentById(id: Int): Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
+    assignmentRepository.deleteAssignment(id).map {
+      case true => Redirect(routes.AssignmentController.listOfAssignment())
+      case false => InternalServerError("Failed to delete from database")
+    }
+  }
+
 }
